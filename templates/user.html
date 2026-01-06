@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User Background Selector</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #f9f1e7; /* Soft cream background */
+      color: #3e3a2e; /* Dark brown text */
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* logo left, links right */
+      padding: 0 40px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 24px rgba(106, 78, 35, 0.12);
+      border-radius: 0 0 18px 18px;
+      margin-bottom: 30px;
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #6a4e23;
+      letter-spacing: 1px;
+    }
+
+    .navbar-logo img {
+      height: 38px;
+      width: 38px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(106, 78, 35, 0.10);
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .navbar-links a {
+      color: #6a4e23;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .navbar-links a.active,
+    .navbar-links a:hover {
+      background: linear-gradient(90deg, #8d6e37 0%, #6a4e23 100%);
+      color: #ffe7b3;
+      box-shadow: 0 2px 12px rgba(106, 78, 35, 0.13);
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 10px;
+        gap: 10px;
+      }
+      .navbar-logo span {
+        font-size: 1.1rem;
+      }
+      .navbar-links {
+        gap: 8px;
+      }
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #6a4e23; /* Gold color for headings */
+      font-family: 'Georgia', serif;
+    }
+
+    #user-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .form-group label {
+      width: 150px; /* Ensure consistent width for all labels */
+      text-align: right;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+
+    .form-group select, .form-group input {
+      flex: 1; /* Ensure input fields take up the remaining space */
+      padding: 8px;
+      border: 2px solid #6a4e23;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    #user-form button {
+      margin-top: 20px;
+      background-color: #6a4e23;
+      color: white;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    #user-form button:hover {
+      background-color: #4a3b1d; /* Darker shade of gold */
+    }
+
+    #output {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #result-img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    #download-btn {
+      margin-top: 10px;
+      background-color: #6a4e23;
+      color: white;
+      cursor: pointer;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    #download-btn:hover {
+      background-color: #4a3b1d; /* Darker shade of gold */
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-logo">
+      <!-- You can use an image or emoji as in admin.html -->
+      <img src="/static/logo.png" alt="Logo" />
+      <span>Background Selector</span>
+    </div>
+    <div class="navbar-links">
+      <a href="/user" class="active">User Page</a>
+      <a href="/">Admin Page</a>
+    </div>
+  </nav>
+
+  <h2>Select a Background</h2>
+  <form id="user-form" enctype="multipart/form-data">
+    <div class="form-group">
+      <label for="bg_name">Background:</label>
+      <select name="bg_name" id="bg_name" required>
+        {% for bg in backgrounds %}
+          <option value="{{ bg }}">{{ bg }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label for="subject">Upload Your Image:</label>
+      <input type="file" id="subject" name="subject" required>
+    </div>
+    <button type="submit">Submit</button>
+  </form>
+
+  <h3>Result</h3>
+  <div id="output">
+    <div id="loading" style="display: none;">Loading...</div>
+    <img id="result-img" style="display: none;">
+    <button id="download-btn" style="display: none;">Download Image</button>
+  </div>
+
+  <script>
+    document.getElementById('user-form').onsubmit = async function (e) {
+      e.preventDefault();
+
+      // Show the loading indicator
+      const loading = document.getElementById('loading');
+      const resultImg = document.getElementById('result-img');
+      const downloadBtn = document.getElementById('download-btn');
+      loading.style.display = 'block';
+      resultImg.style.display = 'none';
+      downloadBtn.style.display = 'none';
+
+      const formData = new FormData(this);
+      try {
+        const res = await fetch('/process_user', {
+          method: 'POST',
+          body: formData
+        });
+
+        const json = await res.json();
+        if (json.url) {
+          resultImg.src = json.url + '?t=' + new Date().getTime();
+          resultImg.style.display = 'block';
+          downloadBtn.style.display = 'inline-block';
+          downloadBtn.onclick = () => {
+            const link = document.createElement('a');
+            link.href = json.url;
+            link.download = 'result.png';
+            link.click();
+          };
+        } else {
+          alert("Error: " + (json.error || "Processing failed"));
+        }
+      } catch (error) {
+        alert("An error occurred while processing the request.");
+      } finally {
+        // Hide the loading indicator
+        loading.style.display = 'none';
+      }
+    };
+  </script>
+</body>
+</html>

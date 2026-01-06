@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Background Replacement</title>
+  <style>
+    body {
+      font-family: 'Georgia', serif;
+      background-color: #f9f1e7; /* Soft cream background */
+      color: #3e3a2e; /* Dark brown text */
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    nav {
+      background: linear-gradient(90deg, #8d6e37 0%, #6a4e23 100%);
+      padding: 18px 0;
+      text-align: center;
+      border-radius: 0 0 18px 18px;
+      box-shadow: 0 4px 16px rgba(106, 78, 35, 0.18);
+      position: relative;
+      margin-bottom: 30px;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 30px;
+    }
+
+    nav::before {
+      content: "";
+      font-size: 28px;
+      margin-right: 18px;
+      color: #ffe7b3;
+      vertical-align: middle;
+    }
+
+    nav a {
+      color: #ffe7b3;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 8px 22px;
+      border-radius: 8px;
+      transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 2px 8px rgba(106, 78, 35, 0.08);
+      margin: 0 5px;
+      display: inline-block;
+    }
+
+    nav a:hover {
+      background: rgba(255, 255, 255, 0.13);
+      color: #fff;
+      box-shadow: 0 4px 16px rgba(106, 78, 35, 0.18);
+      text-decoration: none;
+    }
+
+    h2, h3 {
+      text-align: center;
+      color: #6a4e23; /* Gold color for headings */
+      font-family: 'Georgia', serif;
+    }
+
+    #coordinates {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #6a4e23; /* Gold-like color */
+      padding: 8px 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 16px;
+      border-radius: 5px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      z-index: 999;
+    }
+
+    #canvas-container {
+      width: 100%;
+      height: 700px;
+      overflow: auto;
+      border: 3px solid #6a4e23;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    #upload-form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .form-group {
+      display: flex;
+      align-items: center;
+      margin: 10px 0;
+    }
+
+    .form-group label {
+      width: 150px; /* Ensure consistent width for all labels */
+      text-align: right;
+      margin-right: 10px;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      flex: 1; /* Ensure input fields take up the remaining space */
+      padding: 8px;
+      border: 2px solid #6a4e23;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    #upload-form button {
+      margin-top: 20px;
+      background-color: #6a4e23;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #upload-form button:hover {
+      background-color: #4a3b1d; /* Darker shade of gold */
+    }
+
+    #controls {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    #save-btn, #download-btn {
+      background-color: #6a4e23;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+      margin: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    #save-btn:hover, #download-btn:hover {
+      background-color: #4a3b1d;
+    }
+
+    #canvas {
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Add a subtle glow effect to the background */
+    .background-glow {
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.2));
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 4px 24px rgba(106, 78, 35, 0.12);
+      border-radius: 0 0 18px 18px;
+      margin-bottom: 30px;
+    }
+
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #6a4e23;
+      letter-spacing: 1px;
+    }
+
+    .navbar-logo img {
+      height: 38px;
+      width: 38px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(106, 78, 35, 0.10);
+    }
+
+    .navbar-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .navbar-links a {
+      color: #6a4e23;
+      text-decoration: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 8px 20px;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+      position: relative;
+    }
+
+    .navbar-links a.active,
+    .navbar-links a:hover {
+      background: linear-gradient(90deg, #8d6e37 0%, #6a4e23 100%);
+      color: #ffe7b3;
+      box-shadow: 0 2px 12px rgba(106, 78, 35, 0.13);
+    }
+
+    @media (max-width: 600px) {
+      .navbar {
+        flex-direction: column;
+        height: auto;
+        padding: 10px 10px;
+        gap: 10px;
+      }
+      .navbar-logo span {
+        font-size: 1.1rem;
+      }
+      .navbar-links {
+        gap: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-links">
+      <a href="/user">User Page</a>
+      <a href="/" class="active">Admin Page</a>
+    </div>
+  </nav>
+
+  <h2>Background Replacement Admin</h2>
+  <div class="background-glow">
+    <form id="upload-form" enctype="multipart/form-data">
+      <h3>Upload Your Images</h3>
+      <div class="form-group">
+        <label for="subject">Subject:</label>
+        <input type="file" id="subject" name="subject" required>
+      </div>
+      <div class="form-group">
+        <label for="background">Background:</label>
+        <input type="file" id="background" name="background" required>
+      </div>
+      <div class="form-group">
+        <label for="bg_name">Background Name:</label>
+        <input type="text" id="bg_name" name="bg_name" required>
+      </div>
+      <button type="submit">Upload</button>
+    </form>
+
+    <h3>Adjust Image</h3>
+    <div id="canvas-container">
+      <canvas id="canvas"></canvas>
+    </div>
+
+    <div id="controls">
+      <button id="save-btn">Save Position</button>
+      <button id="download-btn">Download Composite</button>
+    </div>
+  </div>
+
+  <script>
+    let fg = new Image(), bg = new Image();
+    let fgX = 100, fgY = 100, scale = 1;
+    let dragging = false, offsetX = 0, offsetY = 0;
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    let bgName = '';
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(bg, 0, 0);
+      ctx.drawImage(fg, fgX, fgY, fg.width * scale, fg.height * scale);
+      updateCoordinatesDisplay();
+    }
+
+    canvas.onmousedown = e => {
+      offsetX = e.offsetX - fgX;
+      offsetY = e.offsetY - fgY;
+      dragging = true;
+    };
+    canvas.onmouseup = () => dragging = false;
+    canvas.onmousemove = e => {
+      if (dragging) {
+        fgX = e.offsetX - offsetX;
+        fgY = e.offsetY - offsetY;
+        draw();
+      }
+    };
+    canvas.onwheel = e => {
+      e.preventDefault();
+      scale += e.deltaY * -0.001;
+      scale = Math.max(0.1, Math.min(5, scale));
+      draw();
+    };
+
+    document.getElementById("upload-form").onsubmit = async e => {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+
+      const res = await fetch('/upload', { method: 'POST', body: data });
+      const json = await res.json();
+
+      bg.src = json.bg;
+      fg.src = json.fg;
+      fgX = json.position.x;
+      fgY = json.position.y;
+      scale = json.position.scale;
+      bgName = json.bg_name;
+
+      fg.onload = bg.onload = () => {
+        canvas.width = bg.width;
+        canvas.height = bg.height;
+        draw();
+      };
+    };
+
+    document.getElementById("save-btn").onclick = async () => {
+      await fetch('/save_position', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ x: fgX, y: fgY, scale, bg_name: bgName })
+      });
+      alert("Position saved!");
+    };
+
+    document.getElementById("download-btn").onclick = async () => {
+      const res = await fetch('/composite', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ x: fgX, y: fgY, scale, bg_name: bgName })
+      });
+      const json = await res.json();
+      const link = document.createElement("a");
+      link.href = json.url;
+      link.download = "composited.png";
+      link.click();
+    };
+
+    function updateCoordinatesDisplay() {
+      document.getElementById("coordinates").innerText = 
+        `X: ${fgX.toFixed(0)}, Y: ${fgY.toFixed(0)}, Scale: ${scale.toFixed(2)}`;
+    }
+
+    canvas.onmousedown = e => {
+      offsetX = e.offsetX - fgX;
+      offsetY = e.offsetY - fgY;
+      dragging = true;
+    };
+
+    canvas.onmouseup = () => {
+      dragging = false;
+    };
+
+    canvas.onmousemove = e => {
+      if (dragging) {
+        fgX = e.offsetX - offsetX;
+        fgY = e.offsetY - offsetY;
+        draw();
+        updateCoordinatesDisplay();
+      }
+    };
+
+    canvas.onwheel = e => {
+      e.preventDefault();
+      scale += e.deltaY * -0.001;
+      scale = Math.max(0.1, Math.min(5, scale));
+      draw();
+      updateCoordinatesDisplay();
+    };
+  </script>
+</body>
+</html>
