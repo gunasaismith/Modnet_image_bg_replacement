@@ -1,0 +1,36 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+venv/
+env/
+myenv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints
+
+# Logs and databases
+.pytest_cache/
+*.log
+
+# Large model files and workspaces (keep them out of repo)
+modnet_workspace/
+pretrained/
+
+# Uploaded media
+uploads/
