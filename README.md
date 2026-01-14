@@ -72,22 +72,10 @@ and example scripts to run inference on images.
   git add .gitattributes
   ```
 
-## Security & privacy
-- Do not upload private or copyrighted images to public repos or demo
-  deployments. Keep model checkpoints and data local where appropriate.
 
 ## Contributing
 - Bug reports and pull requests are welcome. For substantial changes,
   open an issue first to discuss the design.
 
-## License
-- Add your preferred license file (e.g., `LICENSE`) to the repo. Tell me
-  which license you want and I can add it.
 
-## Acknowledgements
-- MODNet project authors — this repo integrates MODNet sample code and
-  model checkpoints (not distributed here).
 
-## Contact
-- If you'd like further README additions (examples, CI, badges, or a
-  LICENSE), tell me which and I'll add them.
